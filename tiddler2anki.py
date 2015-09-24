@@ -109,7 +109,7 @@ class Logic:
     answers = s.findAll('an')
     if (questions == None or answers == None):
       return None
-    assert len(questions) == len(answers)
+    assert len(questions) == len(answers) # mismatch no corresponding <an> for <qa> somewhere in json
     out = {}
     for q, a in izip(questions, answers):
       assert q['time'] != None # user forgot to put in a TIME attribute
