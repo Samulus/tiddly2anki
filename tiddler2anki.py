@@ -207,10 +207,9 @@ class UI(QtGui.QWidget):
     self.__json_btn.clicked.connect(set_path)
 
     def process():
-      if self.__data['path'] != "" and self.__data['path'] != None:
-        self.__data['path'] = self.__json_path.text()
-        self.__data['deck'] = self.__deck_list.currentText()
-        self.__callback(self.__data['path'], self.__data['deck'], self.logger)
+      self.__data['path'] = self.__json_path.text()
+      self.__data['deck'] = self.__deck_list.currentText()
+      self.__callback(self.__data['path'], self.__data['deck'], self.logger)
 
     self.__deck_process.clicked.connect(process)
 
