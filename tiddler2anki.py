@@ -3,9 +3,10 @@
 # It checks for the prescence of a <qa time=blah></qa> and matching <an></an>
 # tag to determine the question and answer. This is so I can combine my questions and
 # flashcards directly in my notes. Feel free to adapt it to your needs.
-# TODO: nested lists, nested bullets, text fmt replacing
-# __update, __create, __remove need to operate on the specific deck only
-# __remove needs to be created (will suspend cards not found anymore and the user can delete them manually)
+# TODO: nested lists, nested bullets # __update, __create, __remove need to
+# operate on the specific deck only # __remove needs to be created (will
+# suspend cards not found anymore and the user can delete them manually) # to
+# avoid wiping out important cards
 
 from aqt import mw
 from aqt.utils import showInfo
@@ -18,6 +19,7 @@ from BeautifulSoup import BeautifulSoup as Soup
 import json, re
 
 def tiddler2html(text):
+
   struct = {
     'header'  : re.compile("^\!+", re.M),
     'bullets' : re.compile("^\*+", re.M),
@@ -27,13 +29,13 @@ def tiddler2html(text):
   }
 
   fmt = {
-    "link_a"  : re.compile("\[\[.+?\|.+?\]\]"), # [[ABC|Alphabet]]
-    "link_b"  : re.compile("\[\[[^\|]+?\]\]"),  # [[ABC]]
-    "latex"   : re.compile("\$\$(.|\n)*?\$\$"),
-    "bold"    : re.compile("''.+?''"),
-    "italics" : re.compile("//.+?//"),
-    "under"   : re.compile("__.+?__"),
-    "strike"  : re.compile("~~.+?~~"),
+    "link_a"  : {'p':re.compile(""), 's':'', 'e': ''}, # [[ABC|Alphabet]] TODO
+    "link_b"  : {'p':re.compile(""), 's':'', 'e': ''},  # [[ABC]] TODO
+    "latex"   : {'p':re.compile("\$\$"), 's': '[$]', 'e': '[/$]'},
+    "bold"    : {'p':re.compile("''"), 's': '<b>', 'e': '</b>'},
+    "italics" : {'p':re.compile("\/\/"), 's': '<i>', 'e': '</i>'},
+    "under"   : {'p':re.compile("\_\_"), 's': '<u>', 'e': '</u>'},
+    "strike"  : {'p':re.compile("\~\~"), 's': '<strike>', 'e': '</strike>'},
   }
 
   html = ''
@@ -65,11 +67,12 @@ def tiddler2html(text):
   # Doublecheck Table Ended
   if (prev == "table" and rule != "table"): html += "</tr>\n</tbody></br>\n";
 
-  # Text Formatting
-  #for f in fmt:
-    #for m in fmt[f].finditer(html):
-      #s,e = f.span() TODO
-      #pass
+  # Formatting
+  for f in fmt:
+     count = len(fmt[f]['p'].findall(html))
+     for tag in range(count):
+       delim = fmt[f]['s'] if (tag+1) % 2 == 1 else fmt[f]['e'] # put the appropriate start / end delimiter
+       html = re.sub(fmt[f]['p'].pattern, delim, html, count=1);
 
   return Soup(html + "</html>").prettify();
 
@@ -181,7 +184,6 @@ class Logic:
     for k in jkeys:
       if k not in akeys:
         pass
-
 
 class UI(QtGui.QWidget):
   def __init__(self, decks):
